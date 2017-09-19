@@ -7,6 +7,7 @@ import info.tepp.osgi.manifest.parser.Tuple;
 import info.tepp.osgi.manifest.parser.Tuple.Tuple2;
 
 import java.text.ParseException;
+import java.util.StringTokenizer;
 
 import static info.tepp.osgi.manifest.parser.Parser.*;
 
@@ -22,6 +23,7 @@ public class Version implements Comparable<Version> {
         this.minor = minor;
         this.micro = micro;
         this.qualifier = qualifier != null ? qualifier : "";
+		validate();
     }
 
     @Override
@@ -67,15 +69,43 @@ public class Version implements Comparable<Version> {
         String string = "" + major + "." + minor;
 
         int q = qualifier != null ? qualifier.length() : 0;
-        if ((micro | q) != 0) {
+        //if ((micro | q) != 0) {
             string += "." + micro;
             if (q != 0)
                 string += "." + qualifier;
-        }
+        //}
 
         return string;
     }
 
+	private void validate() {
+		if (this.major < 0) {
+			throw new IllegalArgumentException(
+					"invalid version: negative number \"" + this.major + "\"");
+		} else if (this.minor < 0) {
+			throw new IllegalArgumentException(
+					"invalid version: negative number \"" + this.minor + "\"");
+		} else if (this.micro < 0) {
+			throw new IllegalArgumentException(
+					"invalid version: negative number \"" + this.micro + "\"");
+		} else {
+			char[] arg3;
+			int arg2 = (arg3 = this.qualifier.toCharArray()).length;
+
+			for (int arg1 = 0; arg1 < arg2; ++arg1) {
+				char ch = arg3[arg1];
+				if ((65 > ch || ch > 90) && (97 > ch || ch > 122) && (48 > ch || ch > 57) && ch != 95 && ch != 45) {
+					throw new IllegalArgumentException("invalid version: invalid qualifier \"" + this.qualifier + "\"");
+				}
+			}
+
+		}
+	}
+	
+	public static Version valueOf(String versionString) throws ParseException {
+		return parseVersion(versionString);
+	}
+	
     public static Version parseVersion(String versionString) throws ParseException {
         Parser<Tuple2<Integer, Maybe<Tuple2<Integer, Maybe<Tuple2<Integer, Maybe<String>>>>>>> parser;
         parser = NUMBER.then(
