@@ -118,20 +118,20 @@ public class SimpleOsgiAttributesTest {
     public void canSetRequireBundle() {
         final List<String> valueList = new ArrayList<>();
         valueList.add("bundle1;bundle-version=\"1.0.0\"");
-        valueList.add("bundle2;bundle-version=\"1.0.0\"");
+        valueList.add("bundle2;bundle-version=\"1.0.0\";resolution:=\"optional\"");
         valueList.add("bundle3;bundle-version=\"[1.0.0,2.0.0)\"");
-        valueList.add("bundle4");
+        valueList.add("bundle4;resolution:=\"optional\"");
         valueList.add("bundle5");
         attributes.setRequireBundle(valueList);
         assertEquals(
-                "bundle1;bundle-version=\"1.0.0\",\r\n bundle2;bundle-version=\"1.0.0\",\r\n bundle3;bundle-version=\"[1.0.0,2.0.0)\",\r\n bundle4,\r\n bundle5",
+                "bundle1;bundle-version=\"1.0.0\",\r\n bundle2;bundle-version=\"1.0.0\";resolution:=\"optional\",\r\n bundle3;bundle-version=\"[1.0.0,2.0.0)\",\r\n bundle4;resolution:=\"optional\",\r\n bundle5",
                 attributes.getValue(OsgiAttributes.Name.Require_Bundle));
         final List<String> result = attributes.getRequireBundle();
         assertEquals(5, result.size());
         assertEquals("bundle1;bundle-version=\"1.0.0\"", result.get(0));
-        assertEquals("bundle2;bundle-version=\"1.0.0\"", result.get(1));
+        assertEquals("bundle2;bundle-version=\"1.0.0\";resolution:=\"optional\"", result.get(1));
         assertEquals("bundle3;bundle-version=\"[1.0.0,2.0.0)\"", result.get(2));
-        assertEquals("bundle4", result.get(3));
+        assertEquals("bundle4;resolution:=\"optional\"", result.get(3));
         assertEquals("bundle5", result.get(4));
     }
 }

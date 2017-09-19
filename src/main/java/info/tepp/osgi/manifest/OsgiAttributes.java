@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class OsgiAttributes extends Attributes {
 
-    private final String reqBundle = "[a-z0-9\\.\\-_]+(;bundle\\-version\\=\".*\")?";
+    private final String reqBundle = "[a-z0-9\\.\\-_]+(;bundle\\-version\\=\".*\")?(;resolution:=\"optional\")?";
     private final String impPkg = "[a-z0-9\\.\\-_]+(;version\\=\".*\")?";
     private final String expPkg = "[a-z0-9\\.\\-_]+(;version\\=\".*\")?";
 

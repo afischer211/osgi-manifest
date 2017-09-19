@@ -30,8 +30,9 @@ public class SimpleOsgiManifestTest {
         manifest.getMainAttributes().setImportPackage(valueList);
         valueList.clear();
         valueList.add("bundle1;bundle-version=\"1.0.0\"");
-        valueList.add("bundle2;bundle-version=\"[1.0.0,2.0.0.qualifier]\"");
-        valueList.add("bundle3;bundle-version=\"[1.0.0,3.0.0)\"");
+        valueList.add("bundle2;bundle-version=\"[1.0.0,2.0.0.qualifier]\";resolution:=\"optional\"");
+        valueList.add("bundle3;bundle-version=\"[1.0.0,3.0.0)\";resolution:=\"optional\"");
+        valueList.add("bundle4");
         manifest.getMainAttributes().setRequireBundle(valueList);
         assertEquals("Bundle name", manifest.getMainAttributes().getBundleName());
         try {
