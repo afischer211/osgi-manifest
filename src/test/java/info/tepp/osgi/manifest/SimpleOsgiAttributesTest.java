@@ -117,21 +117,62 @@ public class SimpleOsgiAttributesTest {
     @Test
     public void canSetRequireBundle() {
         final List<String> valueList = new ArrayList<>();
-        valueList.add("bundle1;bundle-version=\"1.0.0\"");
-        valueList.add("bundle2;bundle-version=\"1.0.0\";resolution:=\"optional\"");
-        valueList.add("bundle3;bundle-version=\"[1.0.0,2.0.0)\"");
-        valueList.add("bundle4;resolution:=\"optional\"");
-        valueList.add("bundle5");
+        valueList.add("info.bundle1;bundle-version=\"1.0.0\"");
+        valueList.add("info.bundle2;bundle-version=\"1.0.0\";resolution:=\"optional\"");
+        valueList.add("info.bundle3;bundle-version=\"[1.0.0,2.0.0)\"");
+        valueList.add("info.bundle4;resolution:=\"optional\"");
+        valueList.add("info.bundle5");
         attributes.setRequireBundle(valueList);
         assertEquals(
-                "bundle1;bundle-version=\"1.0.0\",\r\n bundle2;bundle-version=\"1.0.0\";resolution:=\"optional\",\r\n bundle3;bundle-version=\"[1.0.0,2.0.0)\",\r\n bundle4;resolution:=\"optional\",\r\n bundle5",
+                "info.bundle1;bundle-version=\"1.0.0\",\r\n info.bundle2;bundle-version=\"1.0.0\";resolution:=\"optional\",\r\n info.bundle3;bundle-version=\"[1.0.0,2.0.0)\",\r\n info.bundle4;resolution:=\"optional\",\r\n info.bundle5",
                 attributes.getValue(OsgiAttributes.Name.Require_Bundle));
         final List<String> result = attributes.getRequireBundle();
         assertEquals(5, result.size());
-        assertEquals("bundle1;bundle-version=\"1.0.0\"", result.get(0));
-        assertEquals("bundle2;bundle-version=\"1.0.0\";resolution:=\"optional\"", result.get(1));
-        assertEquals("bundle3;bundle-version=\"[1.0.0,2.0.0)\"", result.get(2));
-        assertEquals("bundle4;resolution:=\"optional\"", result.get(3));
-        assertEquals("bundle5", result.get(4));
+        assertEquals("info.bundle1;bundle-version=\"1.0.0\"", result.get(0));
+        assertEquals("info.bundle2;bundle-version=\"1.0.0\";resolution:=\"optional\"", result.get(1));
+        assertEquals("info.bundle3;bundle-version=\"[1.0.0,2.0.0)\"", result.get(2));
+        assertEquals("info.bundle4;resolution:=\"optional\"", result.get(3));
+        assertEquals("info.bundle5", result.get(4));
+    }
+
+    @Test
+    public void testParseReqBundle() {
+        attributes.putValue(OsgiAttributes.Name.Require_Bundle,
+                "info.bundle1;bundle-version=\"1.0.0\",\r\n info.bundle2;bundle-version=\"[1.0.0,2.0.0)\";resolution:=\"optional\",\r\n info.bundle3;bundle-version=\"[1.0.0.ABC,2.0.0_xyz)\",\r\n info.bundle4;resolution:=\"optional\",\r\n info.bundle5");
+        final List<String> result1 = attributes.getRequireBundle();
+        assertEquals(5, result1.size());
+        attributes.putValue(OsgiAttributes.Name.Require_Bundle,
+                "info.bundle1;bundle-version=\"1.0.0\",info.bundle2;bundle-version=\"1.0.0\";resolution:=\"optional\",info.bundle3;bundle-version=\"[1.0.0,2.0.0)\",info.bundle4;resolution:=\"optional\",info.bundle5");
+        final List<String> result2 = attributes.getRequireBundle();
+        assertEquals(5, result2.size());
+    }
+
+    @Test
+    public void testImpPkg() {
+        attributes.putValue(OsgiAttributes.Name.Import_Package,
+                "info.pkg1;version=\"1.0.0\",\r\n info.pkg2;version=\"[1.0.0,2.0.0)\";resolution:=\"optional\",\r\n info.pkg3;version=\"[1.0.0.ABC,2.0.0_XYZ)\",\r\n info.pkg4;resolution:=\"optional\",\r\n info.pkg5");
+        final List<String> result1 = attributes.getImportPackage();
+        assertEquals(5, result1.size());
+        attributes.putValue(OsgiAttributes.Name.Import_Package,
+                "info.pkg1;version=\"1.0.0\",info.pkg2;version=\"[1.0.0,2.0.0)\";resolution:=\"optional\",info.pkg3;version=\"[1.0.0,2.0.0)\",info.pkg4;resolution:=\"optional\",info.pkg5");
+        final List<String> result2 = attributes.getImportPackage();
+        assertEquals(5, result2.size());
+    }
+
+    @Test
+    public void testExpPkg() {
+        attributes.putValue(OsgiAttributes.Name.Export_Package, "info.pkg1;version=\"1.0.0\",\r\n info.pkg2,\r\n info.pkg3;version=\"1.0.0\",\r\n info.pkg4");
+        final List<String> result1 = attributes.getExportPackage();
+        assertEquals(4, result1.size());
+        attributes.putValue(OsgiAttributes.Name.Export_Package,
+                "info.pkg1;version=\"1.0.0\",info.pkg2,info.pkg3;version=\"1.0.0\",info.pkg4,info.pkg5;version=\"1.0.0_ABC\",info.pkg6;version=\"1.0.0.xyz\"");
+        final List<String> result2 = attributes.getExportPackage();
+        assertEquals(6, result2.size());
+        assertEquals("info.pkg1;version=\"1.0.0\"", result2.get(0));
+        assertEquals("info.pkg2", result2.get(1));
+        assertEquals("info.pkg3;version=\"1.0.0\"", result2.get(2));
+        assertEquals("info.pkg4", result2.get(3));
+        assertEquals("info.pkg5;version=\"1.0.0_ABC\"", result2.get(4));
+        assertEquals("info.pkg6;version=\"1.0.0.xyz\"", result2.get(5));
     }
 }

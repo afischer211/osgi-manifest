@@ -12,15 +12,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class OsgiAttributes extends Attributes {
-
-    private final String reqBundle = "[a-z0-9\\.\\-_]+(;bundle\\-version\\=\".*\")?(;resolution:=\"optional\")?";
-    private final String impPkg = "[a-z0-9\\.\\-_]+(;version\\=\".*\")?";
-    private final String expPkg = "[a-z0-9\\.\\-_]+(;version\\=\".*\")?";
+    //@formatter:off
+    private final String reqBundle = "[a-z][a-z0-9\\.\\_\\-]+(;bundle\\-version\\=\\\"[\\[\\(]?([0-9]+\\.[0-9]+[0-9a-zA-Z\\.\\_]*)(\\,([0-9]+\\.[0-9]+[0-9a-zA-Z\\.\\_]*))?[\\]\\)]?\\\")?(;resolution\\:\\=\\\"optional\\\")?";
+    private final String impPkg =    "[a-z][a-z0-9\\.\\_\\-]+(;version\\=\\\"[\\[\\(]?([0-9]+\\.[0-9]+[0-9a-zA-Z\\.\\_]*)(\\,([0-9]+\\.[0-9]+[0-9a-zA-Z\\.\\_]*))?[\\]\\)]?\\\")?(;resolution\\:\\=\\\"optional\\\")?";
+    private final String expPkg =    "[a-z][a-z0-9\\.\\_\\-]+(;version\\=\\\"[0-9]+\\.[0-9]+[0-9a-zA-Z\\.\\_]*\\\")?";
 
     private Attributes attribs;
 
     /** Default-Order for written manifest-entries */
-    //@formatter:off
     private static List<String> keyOrder = Arrays.asList(new String[] {
        //"Manifest-Version",
        Name.Bundle_ManifestVersion.toString(),
