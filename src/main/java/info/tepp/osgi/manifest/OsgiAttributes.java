@@ -1,9 +1,55 @@
 package info.tepp.osgi.manifest;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.Attributes;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class OsgiAttributes extends Attributes {
 
+    private final String reqBundle = "[a-z0-9\\.\\-_]+(;bundle\\-version\\=\".*\")?";
+    private final String impPkg = "[a-z0-9\\.\\-_]+(;version\\=\".*\")?";
+    private final String expPkg = "[a-z0-9\\.\\-_]+(;version\\=\".*\")?";
+
+    private Attributes attribs;
+
+    /** Default-Order for written manifest-entries */
+    //@formatter:off
+    private static List<String> keyOrder = Arrays.asList(new String[] {
+       //"Manifest-Version",
+       Name.Bundle_ManifestVersion.toString(),
+       Name.Bundle_Name.toString(),
+       Name.Bundle_SymbolicName.toString(),
+       Name.Bundle_Version.toString(),
+       Name.Bundle_Vendor.toString(),
+       Name.Bundle_License.toString(),
+       Name.Bundle_ContactAddress.toString(),
+       Name.Bundle_Description.toString(),
+       Name.Bundle_Copyright.toString(),
+       Name.Bundle_RequiredExecutionEnvironment.toString(),
+       Name.Require_Capability.toString(),
+       Name.Bundle_Activator.toString(),
+       Name.Bundle_ActivationPolicy.toString(),
+       Name.Bundle_Localization.toString(),
+       Name.Bundle_ClassPath.toString(),
+       Name.Eclipse_BuddyPolicy.toString(),
+       Name.Eclipse_RegisterBuddy.toString(),
+       Name.Eclipse_BundleShape.toString(),
+       Name.Eclipse_PlatformFilter.toString(),
+       Name.Require_Bundle.toString(),
+       Name.Import_Package.toString(),
+       Name.Export_Package.toString(),
+       Name.Export_Service.toString()
+    });
+    //@formatter:on
+
+    //@formatter:off
     /**
      * Returns value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Bundle_Name Bundle-Name} attribute.
      */
@@ -14,7 +60,7 @@ public class OsgiAttributes extends Attributes {
     /**
      * Sets value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Bundle_Name Bundle-Name} attribute.
      */
-    public void setBundleName(String name) {
+    public void setBundleName(final String name) {
         put(Name.Bundle_Name, name);
     }
 
@@ -30,7 +76,7 @@ public class OsgiAttributes extends Attributes {
      * Sets value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Bundle_ContactAddress
      * Bundle-ContactAddress} attribute.
      */
-    public void setBundleContactAddress(String contactAddress) {
+    public void setBundleContactAddress(final String contactAddress) {
         put(Name.Bundle_ContactAddress, contactAddress);
     }
 
@@ -46,7 +92,7 @@ public class OsgiAttributes extends Attributes {
      * Sets value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Bundle_Copyright
      * Bundle-Copyright} attribute.
      */
-    public void setBundleCopyright(String copyright) {
+    public void setBundleCopyright(final String copyright) {
         put(Name.Bundle_Copyright, copyright);
     }
 
@@ -62,7 +108,7 @@ public class OsgiAttributes extends Attributes {
      * Gets value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Bundle_Description
      * Bundle-Description} attribute.
      */
-    public void setBundleDescription(String description) {
+    public void setBundleDescription(final String description) {
         put(Name.Bundle_Description, description);
     }
 
@@ -78,8 +124,50 @@ public class OsgiAttributes extends Attributes {
      * Sets value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Bundle_Vendor
      * Bundle-Vendor} attribute.
      */
-    public void setBundleVendor(String vendor) {
+    public void setBundleVendor(final String vendor) {
         put(Name.Bundle_Vendor, vendor);
+    }
+
+    /**
+     * Returns value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Require_Bundle} attribute.
+     */
+    public List<String> getRequireBundle() {
+        return getMultilineValue(Name.Require_Bundle, reqBundle);
+    }
+
+    /**
+     * Sets value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Bundle_Copyright Bundle-Copyright} attribute.
+     */
+    public void setRequireBundle(final List<String> bundles) {
+        putMultilineValue(Name.Require_Bundle, bundles);
+    }
+
+    /**
+     * Returns value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Import_Package} attribute.
+     */
+    public List<String> getImportPackage() {
+        return getMultilineValue(Name.Import_Package, impPkg);
+    }
+
+    /**
+     * Sets value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Bundle_Copyright Bundle-Copyright} attribute.
+     */
+    public void setImportPackage(final List<String> packages) {
+        putMultilineValue(Name.Import_Package, packages);
+    }
+
+    /**
+     * Returns value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Export_Package} attribute.
+     */
+    public List<String> getExportPackage() {
+        return getMultilineValue(Name.Export_Package, expPkg);
+    }
+
+    /**
+     * Sets value of the {@link info.tepp.osgi.manifest.OsgiAttributes.Name#Bundle_Copyright Bundle-Copyright} attribute.
+     */
+    public void setExportPackage(final List<String> packages) {
+        putMultilineValue(Name.Export_Package, packages);
     }
 
     /**
@@ -444,26 +532,139 @@ public class OsgiAttributes extends Attributes {
 
         public static final Name Include_Resource               = new Name("Include-Resource");
 
-        public Name(String s) {
+        public Name(final String s) {
             super(s);
         }
 
 
     }
+//@formatter:on
     public OsgiAttributes() {
         super();
     }
 
-    public OsgiAttributes(int i) {
+    public OsgiAttributes(final int i) {
         super(i);
     }
 
-    public OsgiAttributes(Attributes attributes) {
+    public OsgiAttributes(final Attributes attributes) {
         super(attributes);
+        this.attribs = attributes;
     }
 
     /** Typesafe put operation */
-    public String put(OsgiAttributes.Name name, String value) {
+    public String put(final OsgiAttributes.Name name, final String value) {
+        if (attribs != null)
+            attribs.put(name, value);
         return (String) super.put(name, value);
+    }
+
+    /** Typesafe put operation */
+    public String putValue(final OsgiAttributes.Name name, final String value) {
+        if (attribs != null)
+            attribs.put(name, value);
+        return (String) super.put(name, value);
+    }
+
+    protected List<String> getMultilineValue(final OsgiAttributes.Name name, final String entryPattern) {
+        final String value = getValue(name);
+        if (value == null)
+            return null;
+        final List<String> result = new ArrayList<>();
+        final Matcher matcher = Pattern.compile(entryPattern).matcher(value);
+        while (matcher.find()) {
+            final String entry = matcher.group();
+            result.add(entry.trim());
+        }
+        return result;
+    }
+
+    protected String putMultilineValue(final OsgiAttributes.Name name, final List<String> value) {
+        final StringBuffer buf = new StringBuffer();
+        boolean atFirst = true;
+        for (final String line : value) {
+            if (atFirst) {
+                buf.append(line);
+                atFirst = false;
+            } else {
+                buf.append(",\r\n ");
+                buf.append(line);
+            }
+        }
+        return putValue(name, buf.toString());
+    }
+
+    /*
+     * Writes the current attributes to the specified data output stream, make sure to write out the MANIFEST_VERSION or SIGNATURE_VERSION attributes first. XXX
+     * Need to handle UTF8 values and break up lines longer than 72 bytes
+     */
+    public static void writeMainAttr(final DataOutputStream os, final Attributes attr) throws IOException {
+        // write out the *-Version header first, if it exists
+        String vername = Name.MANIFEST_VERSION.toString();
+        String version = attr.getValue(vername);
+        if (version == null) {
+            vername = Name.SIGNATURE_VERSION.toString();
+            version = attr.getValue(vername);
+        }
+
+        if (version != null) {
+            os.writeBytes(vername + ": " + version + "\r\n");
+        }
+
+        // write out all attributes except for the version
+        // we wrote out earlier
+        if (version != null)
+            writeAttr(os, attr, Arrays.asList(new String[] { vername }));
+        else
+            os.writeBytes("\r\n"); // final empty line
+    }
+
+    /*
+     * Writes the current attributes to the specified data output stream. Use the defined key-order of keyOrder-set. XXX Need to handle UTF8 values and break up
+     * lines longer than 72 bytes
+     */
+    public static void writeAttr(final DataOutputStream os, final Attributes attr, final List<String> suppressedKeys) throws IOException {
+        // at first all default-keys defined in keyOrder, if they exists
+        for (final String attrKey : keyOrder) {
+            if (attr.containsKey(new Name(attrKey))) {
+                if (suppressedKeys == null || !suppressedKeys.contains(attrKey)) {
+                    final StringBuffer buffer = new StringBuffer(attrKey);
+                    buffer.append(": ");
+
+                    String value = (String) attr.getValue(attrKey);
+                    if (value != null) {
+                        final byte[] vb = value.getBytes("UTF8");
+                        value = new String(vb, 0, 0, vb.length);
+                    }
+                    buffer.append(value);
+
+                    buffer.append("\r\n");
+                    os.writeBytes(buffer.toString());
+                }
+            }
+        }
+        // now all remaining keys in non-deterministic order
+        final Iterator<Map.Entry<Object, Object>> it = attr.entrySet().iterator();
+        while (it.hasNext()) {
+            final Map.Entry<Object, Object> e = it.next();
+            final String key = (e.getKey()).toString();
+            if (!keyOrder.contains(key)) { // all other keys are already written
+                if (suppressedKeys == null || !suppressedKeys.contains(key)) {
+                    final StringBuffer buffer = new StringBuffer(key);
+                    buffer.append(": ");
+
+                    String value = (String) e.getValue();
+                    if (value != null) {
+                        final byte[] vb = value.getBytes("UTF8");
+                        value = new String(vb, 0, 0, vb.length);
+                    }
+                    buffer.append(value);
+
+                    buffer.append("\r\n");
+                    os.writeBytes(buffer.toString());
+                }
+            }
+        }
+        os.writeBytes("\r\n"); // final empty line
     }
 }
