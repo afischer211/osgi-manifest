@@ -4,3 +4,7 @@
 /build
 *.iml
 .idea/
+/bin/
+/.settings/
+*.project
+.classpath
