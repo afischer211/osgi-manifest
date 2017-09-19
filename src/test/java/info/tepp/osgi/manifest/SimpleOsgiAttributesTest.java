@@ -1,11 +1,16 @@
 package info.tepp.osgi.manifest;
 
-import org.junit.Test;
+import static info.tepp.osgi.manifest.OsgiAttributes.Name.Bundle_ContactAddress;
+import static info.tepp.osgi.manifest.OsgiAttributes.Name.Bundle_Copyright;
+import static info.tepp.osgi.manifest.OsgiAttributes.Name.Bundle_Description;
+import static info.tepp.osgi.manifest.OsgiAttributes.Name.Bundle_Name;
+import static info.tepp.osgi.manifest.OsgiAttributes.Name.Bundle_Vendor;
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static info.tepp.osgi.manifest.OsgiAttributes.Name.*;
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class SimpleOsgiAttributesTest {
 
@@ -73,31 +78,60 @@ public class SimpleOsgiAttributesTest {
 
     @Test
     public void canSetImportPackage() {
-		List<String> valueList=new ArrayList<>();
-		valueList.add("val1;version=\"1.0.0\"");
-		valueList.add("val2;version=\"1.0.0\"");
-		valueList.add("val3;version=\"1.0.0\"");
+        final List<String> valueList = new ArrayList<>();
+        valueList.add("pkg1;version=\"1.0.0\"");
+        valueList.add("pkg2;version=\"[1.0.0,2.0.0.qualifier)\"");
+        valueList.add("pkg3;version=\"[1.0.0,2.0.0)\"");
+        valueList.add("pkg4");
+        valueList.add("pkg5");
         attributes.setImportPackage(valueList);
-		assertEquals("val1;version=\"1.0.0\",\r\n val2;version=\"1.0.0\",\r\n val3;version=\"1.0.0\"", attributes.getValue(OsgiAttributes.Name.Import_Package));
-		List<String> result=attributes.getImportPackage();
-		assertEquals("Returned list of values not of expected size",3,result.size());
-		assertEquals("val1;version=\"1.0.0\"",result.get(0));
-		assertEquals("val2;version=\"1.0.0\"",result.get(1));
-		assertEquals("val3;version=\"1.0.0\"",result.get(2));		
+        assertEquals("pkg1;version=\"1.0.0\",\r\n pkg2;version=\"[1.0.0,2.0.0.qualifier)\",\r\n pkg3;version=\"[1.0.0,2.0.0)\",\r\n pkg4,\r\n pkg5",
+                attributes.getValue(OsgiAttributes.Name.Import_Package));
+        final List<String> result = attributes.getImportPackage();
+        assertEquals("Returned list of values not of expected size", 5, result.size());
+        assertEquals("pkg1;version=\"1.0.0\"", result.get(0));
+        assertEquals("pkg2;version=\"[1.0.0,2.0.0.qualifier)\"", result.get(1));
+        assertEquals("pkg3;version=\"[1.0.0,2.0.0)\"", result.get(2));
+        assertEquals("pkg4", result.get(3));
+        assertEquals("pkg5", result.get(4));
+    }
+
+    @Test
+    public void canSetExportPackage() {
+        final List<String> valueList = new ArrayList<>();
+        valueList.add("pkg1;version=\"1.0.0\"");
+        valueList.add("pkg2;version=\"2.0.0.qualifier\"");
+        valueList.add("pkg3");
+        valueList.add("pkg4");
+        attributes.setExportPackage(valueList);
+        assertEquals("pkg1;version=\"1.0.0\",\r\n pkg2;version=\"2.0.0.qualifier\",\r\n pkg3,\r\n pkg4",
+                attributes.getValue(OsgiAttributes.Name.Export_Package));
+        final List<String> result = attributes.getExportPackage();
+        assertEquals("Returned list of values not of expected size", 4, result.size());
+        assertEquals("pkg1;version=\"1.0.0\"", result.get(0));
+        assertEquals("pkg2;version=\"2.0.0.qualifier\"", result.get(1));
+        assertEquals("pkg3", result.get(2));
+        assertEquals("pkg4", result.get(3));
     }
 
     @Test
     public void canSetRequireBundle() {
-		List<String> valueList=new ArrayList<>();
-		valueList.add("val1;version=\"1.0.0\"");
-		valueList.add("val2;version=\"1.0.0\"");
-		valueList.add("val3;version=\"1.0.0\"");
+        final List<String> valueList = new ArrayList<>();
+        valueList.add("bundle1;bundle-version=\"1.0.0\"");
+        valueList.add("bundle2;bundle-version=\"1.0.0\"");
+        valueList.add("bundle3;bundle-version=\"[1.0.0,2.0.0)\"");
+        valueList.add("bundle4");
+        valueList.add("bundle5");
         attributes.setRequireBundle(valueList);
-		assertEquals("val1;version=\"1.0.0\",\r\n val2;version=\"1.0.0\",\r\n val3;version=\"1.0.0\"", attributes.getValue(OsgiAttributes.Name.Require_Bundle));		
-		List<String> result=attributes.getRequireBundle();
-		assertEquals(3,result.size());
-		assertEquals("val1;version=\"1.0.0\"",result.get(0));
-		assertEquals("val2;version=\"1.0.0\"",result.get(1));
-		assertEquals("val3;version=\"1.0.0\"",result.get(2));		
-	}
+        assertEquals(
+                "bundle1;bundle-version=\"1.0.0\",\r\n bundle2;bundle-version=\"1.0.0\",\r\n bundle3;bundle-version=\"[1.0.0,2.0.0)\",\r\n bundle4,\r\n bundle5",
+                attributes.getValue(OsgiAttributes.Name.Require_Bundle));
+        final List<String> result = attributes.getRequireBundle();
+        assertEquals(5, result.size());
+        assertEquals("bundle1;bundle-version=\"1.0.0\"", result.get(0));
+        assertEquals("bundle2;bundle-version=\"1.0.0\"", result.get(1));
+        assertEquals("bundle3;bundle-version=\"[1.0.0,2.0.0)\"", result.get(2));
+        assertEquals("bundle4", result.get(3));
+        assertEquals("bundle5", result.get(4));
+    }
 }

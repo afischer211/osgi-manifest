@@ -22,14 +22,16 @@ public class SimpleOsgiManifestTest {
         manifest.getMainAttributes().put(Bundle_Name, "Bundle name");
         manifest.getMainAttributes().put(new Name("Non-OSGi-Key"), "Test");
         final List<String> valueList = new ArrayList<>();
-        valueList.add("pkg1;version=\"1.0.0\"");
-        valueList.add("pkg2;version=\"1.0.0\"");
-        valueList.add("pkg3;version=\"1.0.0\"");
+        valueList.add("info.pkg1;version=\"1.0.0\"");
+        valueList.add("info.pkg2;version=\"2.0.0\"");
+        valueList.add("info.pkg3;version=\"1.0.0.qualifier\"");
+        valueList.add("info.pkg4");
         manifest.getMainAttributes().setExportPackage(valueList);
         manifest.getMainAttributes().setImportPackage(valueList);
         valueList.clear();
-        valueList.add("bundle1;version=\"1.0.0\"");
-        valueList.add("bundle2;version=\"1.0.0\"");
+        valueList.add("bundle1;bundle-version=\"1.0.0\"");
+        valueList.add("bundle2;bundle-version=\"[1.0.0,2.0.0.qualifier]\"");
+        valueList.add("bundle3;bundle-version=\"[1.0.0,3.0.0)\"");
         manifest.getMainAttributes().setRequireBundle(valueList);
         assertEquals("Bundle name", manifest.getMainAttributes().getBundleName());
         try {
