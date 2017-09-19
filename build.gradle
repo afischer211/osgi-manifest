@@ -23,7 +23,6 @@ task sourceJar(type: Jar) {
 
 install {
 	repositories.mavenInstaller {
-		pom.artifactId = 'osgi-manifest'
 		pom.groupId = 'info.tepp.osgi'
 		pom.project {
 			licenses {
