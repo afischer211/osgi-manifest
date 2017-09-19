@@ -1,22 +1,45 @@
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 version = '1.0'
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '1.9'
-  distributionUrl = 'http://services.gradle.org/distributions/gradle-1.9-all.zip'
+  gradleVersion = '4.1'
+  distributionUrl = 'http://services.gradle.org/distributions/gradle-4.1-all.zip'
 }
 
 repositories {
+	mavenLocal()
     mavenCentral()
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+install {
+	repositories.mavenInstaller {
+		pom.artifactId = 'osgi-manifest'
+		pom.groupId = 'info.tepp.osgi'
+		pom.project {
+			licenses {
+				license {
+					name 'The Apache Software License, Version 2.0'
+					url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+					distribution 'repo'
+				}
+			}
+		}
+	}
 }
 
 dependencies {
     compile 'org.osgi:org.osgi.core:4.3.0'
 
-    testCompile 'junit:junit:4.11'
+    testCompile 'junit:junit:4.12'
     testCompile 'org.hamcrest:hamcrest-library:1.3'
 }
